@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Multi-Provider LLM Guardrail</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="panel">
+        <header class="header">
+          <div>
+            <h1>Multi-Provider LLM Guardrail</h1>
+            <p>Provider-agnostic AI safety demo</p>
+          </div>
+        </header>
+
+        <form id="generate-form" class="form">
+          <label class="field">
+            <span>Provider</span>
+            <select id="provider" name="provider"></select>
+          </label>
+
+          <label class="field">
+            <span>Prompt</span>
+            <textarea id="prompt" name="prompt" rows="8" placeholder="Enter your prompt here..."></textarea>
+          </label>
+
+          <button id="submit-button" type="submit">Generate</button>
+        </form>
+
+        <section class="result-section" aria-live="polite">
+          <h2>Response</h2>
+          <div id="response-box" class="response-box">The model response will appear here.</div>
+
+          <div id="guardrail-card" class="guardrail-card neutral">
+            <h3>Guardrail Status</h3>
+            <p id="guardrail-status">Waiting for a request.</p>
+            <p id="guardrail-detail" class="muted">No policy evaluation yet.</p>
+          </div>
+
+          <div class="audit-section">
+            <h3>Audit Information</h3>
+            <ul id="audit-list" class="audit-list"></ul>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

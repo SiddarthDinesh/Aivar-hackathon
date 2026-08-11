@@ -1,0 +1,84 @@
+:root {
+  color-scheme: light;
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.5;
+  --bg: #0f172a;
+  --panel: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --accent: #2563eb;
+  --allow: #15803d;
+  --warn: #b45309;
+  --block: #b91c1c;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: linear-gradient(135deg, #eff6ff, #f8fafc);
+  color: var(--text);
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+}
+
+.panel {
+  width: min(900px, 100%);
+  background: var(--panel);
+  border-radius: 16px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+  padding: 24px;
+}
+
+.header h1 { margin: 0 0 4px; }
+.header p { margin: 0 0 20px; color: var(--muted); }
+
+.form { display: grid; gap: 16px; }
+.field { display: grid; gap: 6px; font-weight: 600; }
+select, textarea, button {
+  font: inherit;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  padding: 10px 12px;
+}
+textarea { min-height: 140px; resize: vertical; }
+button {
+  width: fit-content;
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+  border: none;
+}
+button:disabled { opacity: 0.7; cursor: wait; }
+
+.result-section { margin-top: 20px; display: grid; gap: 14px; }
+.response-box {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  min-height: 120px;
+  padding: 12px;
+  background: #f8fafc;
+  white-space: pre-wrap;
+}
+.guardrail-card {
+  border-radius: 10px;
+  padding: 12px 14px;
+  border-left: 6px solid var(--accent);
+  background: #f8fafc;
+}
+.guardrail-card.allow { border-color: var(--allow); color: var(--allow); }
+.guardrail-card.warn { border-color: var(--warn); color: var(--warn); }
+.guardrail-card.block { border-color: var(--block); color: var(--block); }
+.guardrail-card.neutral { border-color: #64748b; color: var(--text); }
+.muted { color: var(--muted); }
+.audit-list { padding-left: 18px; display: grid; gap: 6px; }
+.error { color: var(--block); }
+@media (max-width: 700px) {
+  .app-shell { padding: 12px; }
+  .panel { padding: 16px; }
+}
