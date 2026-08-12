@@ -7,46 +7,133 @@
     <link rel="stylesheet" href="/static/style.css" />
   </head>
   <body>
-    <main class="app-shell">
-      <section class="panel">
-        <header class="header">
-          <div>
-            <h1>Multi-Provider LLM Guardrail</h1>
-            <p>Provider-agnostic AI safety demo</p>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Main navigation">
+        <div class="brand">
+          <div class="logo">🛡️</div>
+          <div class="brand-text">
+            <div class="brand-title">GuardRail</div>
+            <div class="brand-sub">AI Security Gateway</div>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <button id="nav-dashboard" class="nav-item" data-section="dashboard" aria-current="false">Dashboard</button>
+          <button id="nav-playground" class="nav-item active" data-section="playground" aria-current="true">Playground</button>
+          <button id="nav-policies" class="nav-item" data-section="policies" aria-current="false">Policies</button>
+          <button id="nav-audit" class="nav-item" data-section="audit" aria-current="false">Audit Logs</button>
+          <button id="nav-providers" class="nav-item" data-section="providers" aria-current="false">Providers</button>
+        </nav>
+      </aside>
+
+      <div class="main-area">
+        <header class="topbar">
+          <div class="topbar-left">
+            <div class="product-title">AI SECURITY GATEWAY</div>
+            <div id="status-indicator" class="status" aria-live="polite">Checking...</div>
+          </div>
+          <div class="topbar-right">
+            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle light or dark theme">🌙 Dark</button>
           </div>
         </header>
 
-        <form id="generate-form" class="form">
-          <label class="field">
-            <span>Provider</span>
-            <select id="provider" name="provider"></select>
-          </label>
+        <main class="content">
+          <section id="dashboard-section" class="page-section" style="display:none;">
+            <div class="card">
+              <div class="card-header">
+                <h2>Security Overview</h2>
+                <p class="muted">Realtime guardrail activity and trends.</p>
+              </div>
+              <div id="dashboard-metrics" class="dashboard-metrics"></div>
+              <div id="dashboard-chart" class="dashboard-chart"></div>
+              <div id="dashboard-violations" class="dashboard-violations"></div>
+            </div>
+          </section>
 
-          <label class="field">
-            <span>Prompt</span>
-            <textarea id="prompt" name="prompt" rows="8" placeholder="Enter your prompt here..."></textarea>
-          </label>
+          <section id="playground-section" class="page-section">
+            <div class="card">
+              <div class="card-header">
+                <h2>AI PLAYGROUND</h2>
+                <p class="muted">Test an LLM response through the unified guardrail policy.</p>
+              </div>
 
-          <button id="submit-button" type="submit">Generate</button>
-        </form>
+              <form id="generate-form" class="play-form">
+                <div class="form-row">
+                  <label class="field small">
+                    <span>Provider</span>
+                    <select id="provider" name="provider"></select>
+                  </label>
 
-        <section class="result-section" aria-live="polite">
-          <h2>Response</h2>
-          <div id="response-box" class="response-box">The model response will appear here.</div>
+                  <div class="field action-field">
+                    <button id="submit-button" type="submit" class="primary">🛡 Run Guardrail Test</button>
+                  </div>
+                </div>
 
-          <div id="guardrail-card" class="guardrail-card neutral">
-            <h3>Guardrail Status</h3>
-            <p id="guardrail-status">Waiting for a request.</p>
-            <p id="guardrail-detail" class="muted">No policy evaluation yet.</p>
-          </div>
+                <label class="field">
+                  <span>Prompt</span>
+                  <textarea id="prompt" name="prompt" rows="8" placeholder="Enter your prompt here..."></textarea>
+                </label>
+              </form>
+            </div>
 
-          <div class="audit-section">
-            <h3>Audit Information</h3>
-            <ul id="audit-list" class="audit-list"></ul>
-          </div>
-        </section>
-      </section>
-    </main>
+            <div id="results" class="results" aria-live="polite">
+              <div class="result-grid">
+                <section class="card response-card">
+                  <div class="card-header">
+                    <h3>Model Response</h3>
+                  </div>
+                  <div id="response-box" class="response-box">The model response will appear here.</div>
+                </section>
+
+                <aside class="card decision-card">
+                  <div class="card-header">
+                    <h3>Security Decision</h3>
+                  </div>
+                  <div id="guardrail-card" class="guardrail-card neutral">
+                    <div class="guardrail-status-large" id="guardrail-status">Waiting for a request.</div>
+                    <div id="guardrail-detail" class="muted small">No policy evaluation yet.</div>
+                    <dl class="audit-list details" id="audit-list"></dl>
+                  </div>
+                </aside>
+              </div>
+            </div>
+          </section>
+
+          <section id="policies-section" class="page-section" style="display:none;">
+            <div class="card">
+              <div class="card-header">
+                <h2>Policies</h2>
+                <p class="muted">Active guardrail concepts and actions.</p>
+              </div>
+              <ul class="policies-list">
+                <li><strong>PII</strong> → Redact</li>
+                <li><strong>Toxicity</strong> → Block</li>
+                <li><strong>Restricted Topics</strong> → Block</li>
+              </ul>
+            </div>
+          </section>
+
+          <section id="audit-section" class="page-section" style="display:none;">
+            <div class="card">
+              <div class="card-header">
+                <h2>Audit Logs</h2>
+              </div>
+              <div id="audit-table"></div>
+            </div>
+          </section>
+
+          <section id="providers-section" class="page-section" style="display:none;">
+            <div class="card">
+              <div class="card-header">
+                <h2>Providers</h2>
+                <p class="muted">Available LLM providers.</p>
+              </div>
+              <div id="providers-list"></div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
 
     <script src="/static/app.js"></script>
   </body>
