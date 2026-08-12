@@ -1,0 +1,14 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "aivar-hackathon-stack"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-{AccountId}-{Region}"
+s3_prefix = "aivar-hackathon"
+region = "us-east-1"
+confirm_changeset = false
+capabilities = "CAPABILITY_IAM"
+image_repositories = []
+parameter_overrides = [
+  "EnvironmentName=dev"
+]

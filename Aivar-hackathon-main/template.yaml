@@ -1,0 +1,145 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Multi-Provider LLM Guardrail FastAPI Application
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 512
+    Runtime: python3.13
+    Environment:
+      Variables:
+        PYTHONPATH: /var/task
+
+Parameters:
+  EnvironmentName:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - staging
+      - prod
+    Description: Environment name for the deployment
+
+Resources:
+  # Lambda function for the FastAPI application
+  FastAPIFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'aivar-hackathon-${EnvironmentName}'
+      CodeUri: .
+      Handler: app.main.handler
+      Runtime: python3.13
+      MemorySize: 512
+      Timeout: 30
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FastAPIApi
+            Path: /{proxy+}
+            Method: ANY
+        RootPath:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FastAPIApi
+            Path: /
+            Method: ANY
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
+        - S3CrudPolicy:
+            BucketName: !Ref AuditBucket
+      Environment:
+        Variables:
+          AUDIT_TABLE: !Ref AuditTable
+          AUDIT_BUCKET: !Ref AuditBucket
+          ENVIRONMENT: !Ref EnvironmentName
+
+  # API Gateway
+  FastAPIApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Ref EnvironmentName
+      TracingEnabled: true
+      MethodSettings:
+        - ResourcePath: '/*'
+          HttpMethod: '*'
+          LoggingLevel: INFO
+          DataTraceEnabled: true
+          MetricsEnabled: true
+      Variables:
+        Environment: !Ref EnvironmentName
+
+  # DynamoDB Table for audit logs
+  AuditTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'aivar-audit-${EnvironmentName}'
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: N
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+        - AttributeName: timestamp
+          KeyType: RANGE
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+
+  # S3 Bucket for audit logs backup
+  AuditBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'aivar-audit-${EnvironmentName}-${AWS::AccountId}'
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteOldVersions
+            NoncurrentVersionExpirationInDays: 90
+            Status: Enabled
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+
+  # IAM Role for API Gateway logging
+  ApiGatewayLoggingRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: apigateway.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
+
+Outputs:
+  FastAPIEndpoint:
+    Description: API Gateway endpoint URL
+    Value: !Sub 'https://${FastAPIApi}.execute-api.${AWS::Region}.amazonaws.com/${EnvironmentName}'
+  FastAPIFunctionArn:
+    Description: Lambda function ARN
+    Value: !GetAtt FastAPIFunction.Arn
+  AuditTableName:
+    Description: DynamoDB table for audit logs
+    Value: !Ref AuditTable
+  AuditBucketName:
+    Description: S3 bucket for audit logs backup
+    Value: !Ref AuditBucket
